@@ -43,18 +43,24 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction --no-scripts
+        working-directory: backend
 
       - name: Copy .env.testing
         run: cp .env.testing .env
+        working-directory: backend
 
       - name: Generate key (garante chave)
         run: php artisan key:generate || true
+        working-directory: backend
 
       - name: Run migrations
         run: php artisan migrate --force
+        working-directory: backend
 
       - name: Run linter (pint)
         run: ./vendor/bin/pint --test
+        working-directory: backend
 
       - name: Run tests
         run: php artisan test --testsuite=Feature,Unit
+        working-directory: backend
