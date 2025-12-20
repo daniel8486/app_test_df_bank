@@ -32,11 +32,11 @@ class ClienteController extends Controller
                 'í' => 'i', 'ì' => 'i', 'î' => 'i',
                 'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'õ' => 'o',
                 'ú' => 'u', 'ù' => 'u', 'û' => 'u',
-                'ç' => 'c'
+                'ç' => 'c',
             ]);
             $query->whereRaw(
                 "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(nome, 'á', 'a'), 'à', 'a'), 'â', 'a'), 'ã', 'a'), 'é', 'e'), 'è', 'e'), 'ê', 'e'), 'í', 'i'), 'ì', 'i'), 'î', 'i'), 'ó', 'o'), 'ò', 'o'), 'ô', 'o'), 'õ', 'o'), 'ú', 'u'), 'ù', 'u'), 'û', 'u'), 'ç', 'c')) LIKE ?",
-                ['%' . $nomeBusca . '%']
+                ['%'.$nomeBusca.'%']
             );
         }
         if ($cpf) {
@@ -51,7 +51,10 @@ class ClienteController extends Controller
         return $this->successResponse($clientes);
     }
 
-    public function __construct(protected ClienteService $service) {}
+    public function __construct(protected ClienteService $service)
+    {
+        // Construtor vazio em múltiplas linhas
+    }
 
     /**
      * Display a listing of the resource.
