@@ -64,6 +64,12 @@ jobs:
         run: php artisan key:generate || true
         working-directory: backend
 
+      - name: Ensure bootstrap/cache exists and is writable
+        working-directory: backend
+        run: |
+          mkdir -p bootstrap/cache
+          chmod -R 777 bootstrap/cache
+
       - name: Run migrations
         run: php artisan migrate --force
         working-directory: backend
