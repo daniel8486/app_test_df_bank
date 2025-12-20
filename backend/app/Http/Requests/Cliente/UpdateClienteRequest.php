@@ -24,7 +24,7 @@ class UpdateClienteRequest extends FormRequest
         $id = $this->route('cliente') ?? $this->route('id');
 
         // Validação manual do parâmetro de rota (UUID v4 padrão)
-        if (empty($id) || !preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $id)) {
+        if (empty($id) || ! preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $id)) {
             abort(422, 'O parâmetro id da rota é obrigatório e deve ser um UUID válido.');
         }
 

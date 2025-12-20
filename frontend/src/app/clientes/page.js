@@ -87,7 +87,7 @@ export default function ClientesPage() {
     const timeout = setTimeout(async () => {
       try {
         const { data } = await api.get(`/clientes-search?${params.toString()}`);
-        setSearchResult(data.data);
+        setSearchResult(Array.isArray(data.data) ? data.data : []);
       } catch (err) {
         setSearchResult([]);
       } finally {

@@ -21,17 +21,29 @@ class ClienteController extends Controller
         \Log::info('search chamada');
         $nome = $request->input('nome');
         $cpf = $request->input('cpf');
+        $email = $request->input('email');
         $query = \App\Models\Cliente::query();
         if ($nome) {
-            // Busca insensível a maiúsculas/minúsculas e acentos
+            // Busca insensível a maiúsculas/minúsculas e acentos (incluindo ã, õ, ç, etc.)
             $nomeBusca = strtolower($nome);
+            $nomeBusca = strtr($nomeBusca, [
+                'á' => 'a', 'à' => 'a', 'â' => 'a', 'ã' => 'a',
+                'é' => 'e', 'è' => 'e', 'ê' => 'e',
+                'í' => 'i', 'ì' => 'i', 'î' => 'i',
+                'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'õ' => 'o',
+                'ú' => 'u', 'ù' => 'u', 'û' => 'u',
+                'ç' => 'c'
+            ]);
             $query->whereRaw(
-                "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(nome, 'á', 'a'), 'é', 'e'), 'í', 'i'), 'ó', 'o'), 'ú', 'u')) LIKE ?",
-                ['%'.strtr($nomeBusca, ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u']).'%']
+                "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(nome, 'á', 'a'), 'à', 'a'), 'â', 'a'), 'ã', 'a'), 'é', 'e'), 'è', 'e'), 'ê', 'e'), 'í', 'i'), 'ì', 'i'), 'î', 'i'), 'ó', 'o'), 'ò', 'o'), 'ô', 'o'), 'õ', 'o'), 'ú', 'u'), 'ù', 'u'), 'û', 'u'), 'ç', 'c')) LIKE ?",
+                ['%' . $nomeBusca . '%']
             );
         }
         if ($cpf) {
             $query->where('cpf', $cpf);
+        }
+        if ($email) {
+            $query->where('email', $email);
         }
         $clientes = $query->get();
         \Log::info('Resultado busca', ['clientes' => $clientes]);

@@ -83,6 +83,23 @@
           "path": ["api", "clientes", "{{id}}"]
         }
       }
+    },
+    {
+      "name": "Buscar Clientes (nome/cpf)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3001/api/clientes-search?nome=Maria&cpf=52998224725",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "clientes-search"],
+          "query": [
+            { "key": "nome", "value": "Maria", "description": "Nome do cliente (opcional)" },
+            { "key": "cpf", "value": "52998224725", "description": "CPF do cliente (opcional)" }
+          ]
+        }
+      }
     }
   ]
 }
