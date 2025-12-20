@@ -151,4 +151,4 @@ O frontend e backend comunicam-se via HTTP (JSON). O banco de dados é isolado e
 
 ---
 
-Pronto! Qualquer dúvida, consulte a documentação ou abra uma issue.
+Qualquer dúvida, consulte a documentação abra uma issue ou me chame que explicarei com todo prazer.
