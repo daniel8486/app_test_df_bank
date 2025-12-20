@@ -1,0 +1,60 @@
+name: CI/CD Backend Laravel
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  laravel-ci:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: app_test_df_bank
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: app_test_df_bank
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      APP_ENV: testing
+      APP_KEY: base64:OifLkPqZ2Q/9c8f9AFKtr3ymz9j4H5N7JPfMMVH2eVM=
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_pgsql, xml, ctype, json, tokenizer, bcmath
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts
+
+      - name: Copy .env.testing
+        run: cp .env.testing .env
+
+      - name: Generate key (garante chave)
+        run: php artisan key:generate || true
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run linter (pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Run tests
+        run: php artisan test --testsuite=Feature,Unit
