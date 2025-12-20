@@ -64,6 +64,9 @@ class ClienteFeatureTest extends TestCase
             'idade' => 30,
             'endereco' => 'Novo Endereço',
         ];
+        // Validação extra para garantir que o id é válido
+        $this->assertNotEmpty($cliente->id, 'Cliente id está vazio');
+        $this->assertMatchesRegularExpression('/^[0-9a-fA-F\-]{36}$/', $cliente->id, 'Cliente id não é um UUID válido');
         $response = $this->putJson('/api/clientes/'.$cliente->id, $payload);
         if ($response->status() === 422) {
             $response->assertJsonStructure(['success', 'error', 'errors']);
