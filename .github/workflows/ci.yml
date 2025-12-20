@@ -70,6 +70,12 @@ jobs:
           mkdir -p bootstrap/cache
           chmod -R 777 bootstrap/cache
 
+      - name: Ensure storage/framework/views exists and is writable
+        working-directory: backend
+        run: |
+          mkdir -p storage/framework/views
+          chmod -R 777 storage/framework/views
+
       - name: Run migrations
         run: php artisan migrate --force
         working-directory: backend
