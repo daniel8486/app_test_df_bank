@@ -90,34 +90,85 @@ class ClienteFeatureTest extends TestCase
         $response = $this->getJson('/api/clientes/'.$id);
         $response->assertStatus(404);
     }
-    // public function test_busca_clientes_por_nome_e_cpf()
-    // {
-    //     // Cria clientes para busca
-    //     $cliente1 = Cliente::factory()->create(['nome' => 'Daniel', 'cpf' => '12345678901']);
-    //     $cliente2 = Cliente::factory()->create(['nome' => 'Maria', 'cpf' => '98765432100']);
-    //
-    //     // Busca por nome exato
-    //     $response = $this->getJson('/api/clientes-search?nome=Daniel');
-    //     $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
-    //     $this->assertTrue(
-    //         collect($response->json('data'))->contains(fn($c) => $c['id'] === $cliente1->id),
-    //         'Cliente Daniel não encontrado na busca por nome exato. Resultado: ' . json_encode($response->json('data'))
-    //     );
-    // }
-    // Busca por nome sem acento
-    //     $response = $this->getJson('/api/clientes-search?nome=daniel');
-    //     $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
-    //     $this->assertTrue(
-    //         collect($response->json('data'))->contains(fn($c) => $c['id'] === $cliente1->id),
-    //         'Cliente Daniel não encontrado na busca por nome sem acento. Resultado: ' . json_encode($response->json('data'))
-    //     );
-    //
-    //     // Busca por CPF
-    //     $response = $this->getJson('/api/clientes-search?cpf=98765432100');
-    //     $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
-    //     $this->assertTrue(
-    //         collect($response->json('data'))->contains(fn($c) => $c['id'] === $cliente2->id),
-    //         'Cliente Maria Souza não encontrado na busca por CPF. Resultado: ' . json_encode($response->json('data'))
-    //     );
-    // }
+
+    public function test_busca_clientes_por_nome_cpf_email()
+    {
+        $cliente1 = Cliente::factory()->create(['nome' => 'João da Silva', 'cpf' => '12345678901', 'email' => 'joao@email.com']);
+        $cliente2 = Cliente::factory()->create(['nome' => 'Maria Souza', 'cpf' => '98765432100', 'email' => 'maria@email.com']);
+        // Busca por nome exato
+        $response = $this->getJson('/api/clientes-search?nome=João da Silva');
+        $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
+        $this->assertTrue(
+            collect($response->json('data'))->contains(fn ($c) => $c['id'] === $cliente1->id),
+            'Cliente João da Silva não encontrado na busca por nome exato.'
+        );
+        // Busca por nome sem acento
+        $response = $this->getJson('/api/clientes-search?nome=joao');
+        $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
+        $this->assertTrue(
+            collect($response->json('data'))->contains(fn ($c) => $c['id'] === $cliente1->id),
+            'Cliente João da Silva não encontrado na busca por nome sem acento.'
+        );
+        // Busca por CPF
+        $response = $this->getJson('/api/clientes-search?cpf=98765432100');
+        $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
+        $this->assertTrue(
+            collect($response->json('data'))->contains(fn ($c) => $c['id'] === $cliente2->id),
+            'Cliente Maria Souza não encontrado na busca por CPF.'
+        );
+        // Busca por email
+        $response = $this->getJson('/api/clientes-search?email=maria@email.com');
+        $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
+        $this->assertTrue(
+            collect($response->json('data'))->contains(fn ($c) => $c['id'] === $cliente2->id),
+            'Cliente Maria Souza não encontrado na busca por email.'
+        );
+        // Busca combinada
+        $response = $this->getJson('/api/clientes-search?nome=Maria&cpf=98765432100');
+        $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
+        $this->assertTrue(
+            collect($response->json('data'))->contains(fn ($c) => $c['id'] === $cliente2->id),
+            'Cliente Maria Souza não encontrado na busca combinada.'
+        );
+        // Busca que retorna vazio
+        $response = $this->getJson('/api/clientes-search?nome=Inexistente');
+        $response->assertStatus(200)->assertJsonStructure(['success', 'data']);
+        $this->assertCount(0, $response->json('data'));
+    }
+
+    public function test_validacao_campos_obrigatorios_store()
+    {
+        $response = $this->postJson('/api/clientes', []);
+        $response->assertStatus(422)->assertJsonStructure(['success', 'error', 'errors']);
+        $this->assertArrayHasKey('nome', $response->json('errors'));
+        $this->assertArrayHasKey('cpf', $response->json('errors'));
+        $this->assertArrayHasKey('email', $response->json('errors'));
+        $this->assertArrayHasKey('idade', $response->json('errors'));
+        $this->assertArrayHasKey('endereco', $response->json('errors'));
+    }
+
+    public function test_validacao_campos_obrigatorios_update()
+    {
+        $cliente = Cliente::factory()->create();
+        $response = $this->putJson('/api/clientes/'.$cliente->id, []);
+        $response->assertStatus(422)->assertJsonStructure(['success', 'error', 'errors']);
+        $this->assertArrayHasKey('nome', $response->json('errors'));
+        $this->assertArrayHasKey('cpf', $response->json('errors'));
+        $this->assertArrayHasKey('email', $response->json('errors'));
+        $this->assertArrayHasKey('idade', $response->json('errors'));
+        $this->assertArrayHasKey('endereco', $response->json('errors'));
+    }
+
+    public function test_payloads_invalidos()
+    {
+        $payload = [
+            'nome' => '',
+            'cpf' => 'abc',
+            'email' => 'not-an-email',
+            'idade' => 'dezesseis',
+            'endereco' => '',
+        ];
+        $response = $this->postJson('/api/clientes', $payload);
+        $response->assertStatus(422)->assertJsonStructure(['success', 'error', 'errors']);
+    }
 }

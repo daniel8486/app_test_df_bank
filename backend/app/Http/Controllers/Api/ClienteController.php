@@ -18,37 +18,69 @@ class ClienteController extends Controller
      */
     public function search(Request $request)
     {
-        \Log::info('search chamada');
         $nome = $request->input('nome');
         $cpf = $request->input('cpf');
         $email = $request->input('email');
+
         $query = \App\Models\Cliente::query();
-        if ($nome) {
-            // Busca insensível a maiúsculas/minúsculas e acentos (incluindo ã, õ, ç, etc.)
-            $nomeBusca = strtolower($nome);
-            $nomeBusca = strtr($nomeBusca, [
-                'á' => 'a', 'à' => 'a', 'â' => 'a', 'ã' => 'a',
-                'é' => 'e', 'è' => 'e', 'ê' => 'e',
-                'í' => 'i', 'ì' => 'i', 'î' => 'i',
-                'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'õ' => 'o',
-                'ú' => 'u', 'ù' => 'u', 'û' => 'u',
-                'ç' => 'c',
-            ]);
+
+        // Para SQLite, não usamos WHERE complexo - pegamos todos e filtramos depois
+        $needsMemoryFilter = false;
+
+        if ($nome && config('database.default') !== 'sqlite') {
+            // MySQL/PostgreSQL: busca insensível a acentos
+            $nomeNormalizado = $this->removerAcentos(strtolower($nome));
             $query->whereRaw(
-                "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(nome, 'á', 'a'), 'à', 'a'), 'â', 'a'), 'ã', 'a'), 'é', 'e'), 'è', 'e'), 'ê', 'e'), 'í', 'i'), 'ì', 'i'), 'î', 'i'), 'ó', 'o'), 'ò', 'o'), 'ô', 'o'), 'õ', 'o'), 'ú', 'u'), 'ù', 'u'), 'û', 'u'), 'ç', 'c')) LIKE ?",
-                ['%'.$nomeBusca.'%']
+                "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(nome, 'á', 'a'), 'à', 'a'), 'â', 'a'), 'ã', 'a'), 'é', 'e'), 'ê', 'e'), 'í', 'i'), 'ó', 'o'), 'ô', 'o'), 'õ', 'o'), 'ú', 'u'), 'ç', 'c'), 'Á', 'A'), 'É', 'E')) LIKE ?",
+                ['%'.$nomeNormalizado.'%']
             );
+        } elseif ($nome && config('database.default') === 'sqlite') {
+            // SQLite: marcamos para filtrar em memória
+            $needsMemoryFilter = true;
         }
+
         if ($cpf) {
             $query->where('cpf', $cpf);
         }
+
         if ($email) {
-            $query->where('email', $email);
+            $query->where('email', 'LIKE', '%'.$email.'%');
         }
+
         $clientes = $query->get();
-        \Log::info('Resultado busca', ['clientes' => $clientes]);
+
+        // Para SQLite com busca por nome, fazemos filtro em memória
+        if ($needsMemoryFilter && $nome) {
+            $nomeNormalizado = $this->removerAcentos(strtolower($nome));
+            $clientes = $clientes->filter(function ($cliente) use ($nomeNormalizado) {
+                $nomeCliente = $this->removerAcentos(strtolower($cliente->nome));
+
+                return str_contains($nomeCliente, $nomeNormalizado);
+            })->values();
+        }
 
         return $this->successResponse($clientes);
+    }
+
+    /**
+     * Remove acentos de uma string
+     */
+    private function removerAcentos(string $string): string
+    {
+        return strtr($string, [
+            'á' => 'a', 'à' => 'a', 'â' => 'a', 'ã' => 'a',
+            'é' => 'e', 'è' => 'e', 'ê' => 'e',
+            'í' => 'i', 'ì' => 'i', 'î' => 'i',
+            'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'õ' => 'o',
+            'ú' => 'u', 'ù' => 'u', 'û' => 'u',
+            'ç' => 'c',
+            'Á' => 'A', 'À' => 'A', 'Â' => 'A', 'Ã' => 'A',
+            'É' => 'E', 'È' => 'E', 'Ê' => 'E',
+            'Í' => 'I', 'Ì' => 'I', 'Î' => 'I',
+            'Ó' => 'O', 'Ò' => 'O', 'Ô' => 'O', 'Õ' => 'O',
+            'Ú' => 'U', 'Ù' => 'U', 'Û' => 'U',
+            'Ç' => 'C',
+        ]);
     }
 
     public function __construct(protected ClienteService $service)
