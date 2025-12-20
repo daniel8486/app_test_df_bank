@@ -35,15 +35,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create .env.testing
-        run: |
-          echo "APP_KEY=base64:OifLkPqZ2Q/9c8f9AFKtr3ymz9j4H5N7JPfMMVH2eVM=" > backend/.env.testing
-          echo "DB_CONNECTION=pgsql" >> backend/.env.testing
-          echo "DB_HOST=127.0.0.1" >> backend/.env.testing
-          echo "DB_PORT=5432" >> backend/.env.testing
-          echo "DB_DATABASE=app_test_df_bank" >> backend/.env.testing
-          echo "DB_USERNAME=postgres" >> backend/.env.testing
-          echo "DB_PASSWORD=postgres" >> backend/.env.testing
         working-directory: backend
+        run: |
+          echo "APP_KEY=base64:OifLkPqZ2Q/9c8f9AFKtr3ymz9j4H5N7JPfMMVH2eVM=" > .env.testing
+          echo "DB_CONNECTION=pgsql" >> .env.testing
+          echo "DB_HOST=127.0.0.1" >> .env.testing
+          echo "DB_PORT=5432" >> .env.testing
+          echo "DB_DATABASE=app_test_df_bank" >> .env.testing
+          echo "DB_USERNAME=postgres" >> .env.testing
+          echo "DB_PASSWORD=postgres" >> .env.testing
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
