@@ -33,14 +33,31 @@ php artisan serve --host=0.0.0.0 --port=3001
 A API estará em http://localhost:3001
 
 ### Testes
+
 ```sh
 php artisan test
 ```
 
+### Lint ( pint )
+
+```sh 
+cd backend/./vendor/bin/pint # corrije os lints
+```
+
+```sh
+cd backend/./vendor/bin/pint --test # mostra os erros lints sem corrigir
+```
+
 ### Comandos úteis
 - `php artisan migrate:fresh` — recria o banco do zero
+- `php artisan migrate:fresh --seed` - recria o banco do zero e roda o seed
 - `php artisan route:list` — lista as rotas
 - `composer dump-autoload` — atualiza autoload
+- `php artisan optimize:clear` - limpa todos os caches do laravel
+- `php artisan tinker` - interagir com o console do laravel
+## Endpoints e exemplos
+
+backend/POSTMAN_COLLECTION.json
 
 ---
 
@@ -74,10 +91,23 @@ php artisan test --env=testing
 
 ---
 
-## 5. Endpoints e exemplos
-backend/POSTMAN_COLLECTION.json
+## 5. Integração Contínua (CI)
 
---
+O projeto utiliza GitHub Actions para garantir qualidade e estabilidade do backend a cada push ou pull request nas branches main e dev. O workflow principal executa:
+
+- **Checkout do código**
+- **Configuração do ambiente de testes**: Cria o arquivo `.env.testing` e prepara variáveis de ambiente.
+- **Banco de dados PostgreSQL**: Sobe um container dedicado para os testes.
+- **Instalação de dependências**: Usa Composer para instalar as libs PHP/Laravel.
+- **Migrations**: Executa as migrations para garantir o schema atualizado.
+- **Lint (Pint)**: Valida o padrão de código automaticamente.
+- **Testes automatizados**: Executa todos os testes de unidade e feature do Laravel.
+
+Se qualquer etapa falhar, o pipeline é interrompido, evitando que código com problemas chegue à branch principal.
+
+Há também um workflow experimental (ci-cascata.yml) para automação de merges entre test → dev → main, encadeando validações e deploys.
+
+---
 
 ## Conceitos Arquiteturais
 
