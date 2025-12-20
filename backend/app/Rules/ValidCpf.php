@@ -14,7 +14,7 @@ class ValidCpf implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$this->passes($attribute, $value)) {
+        if (! $this->passes($attribute, $value)) {
             $fail('O :attribute informado é inválido.');
         }
     }
@@ -35,6 +35,7 @@ class ValidCpf implements ValidationRule
                 return false;
             }
         }
+
         return true;
     }
 }

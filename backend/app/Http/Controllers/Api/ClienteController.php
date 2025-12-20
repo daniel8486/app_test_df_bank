@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Services\ClienteService;
 use App\DTOs\ClienteDTO;
+use App\Exceptions\DomainException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Cliente\StoreClienteRequest;
 use App\Http\Requests\Cliente\UpdateClienteRequest;
-use App\Exceptions\DomainException;
+use App\Services\ClienteService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
@@ -27,7 +27,7 @@ class ClienteController extends Controller
             $nomeBusca = strtolower($nome);
             $query->whereRaw(
                 "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(nome, 'á', 'a'), 'é', 'e'), 'í', 'i'), 'ó', 'o'), 'ú', 'u')) LIKE ?",
-                ["%" . strtr($nomeBusca, ['á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u']) . "%"]
+                ['%'.strtr($nomeBusca, ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u']).'%']
             );
         }
         if ($cpf) {
@@ -35,15 +35,19 @@ class ClienteController extends Controller
         }
         $clientes = $query->get();
         \Log::info('Resultado busca', ['clientes' => $clientes]);
+
         return $this->successResponse($clientes);
     }
+
     public function __construct(protected ClienteService $service) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $clientes = $this->service->paginate(request('per_page', 15));
+
         return $this->successResponse($clientes);
     }
 
@@ -62,9 +66,11 @@ class ClienteController extends Controller
                 $request->endereco
             );
             $cliente = $this->service->create($dto);
+
             return $this->successResponse($cliente, 201);
         } catch (DomainException $e) {
             $errors = method_exists($e, 'getErrors') ? $e->getErrors() : null;
+
             return $this->errorResponse($e->getMessage(), 422, $errors);
         }
     }
@@ -76,6 +82,7 @@ class ClienteController extends Controller
     {
         try {
             $cliente = $this->service->getById($id);
+
             return $this->successResponse($cliente);
         } catch (\Exception $e) {
             return $this->errorResponse('Cliente não encontrado', 404);
@@ -97,6 +104,7 @@ class ClienteController extends Controller
                 $request->endereco
             );
             $cliente = $this->service->update($id, $dto);
+
             return $this->successResponse($cliente);
         } catch (DomainException $e) {
             \Log::error('Erro de domínio ao editar cliente', [
@@ -105,6 +113,7 @@ class ClienteController extends Controller
                 'exception' => $e,
             ]);
             $errors = method_exists($e, 'getErrors') ? $e->getErrors() : null;
+
             return $this->errorResponse($e->getMessage(), 422, $errors);
         } catch (\Exception $e) {
             \Log::error('Exception ao editar cliente', [
@@ -112,6 +121,7 @@ class ClienteController extends Controller
                 'payload' => $request->all(),
                 'exception' => $e,
             ]);
+
             return $this->errorResponse('Cliente não encontrado', 404);
         }
     }
@@ -123,6 +133,7 @@ class ClienteController extends Controller
     {
         try {
             $this->service->delete($id);
+
             return response()->json([], 204);
         } catch (\Exception $e) {
             return $this->errorResponse('Cliente não encontrado', 404);
@@ -146,6 +157,7 @@ class ClienteController extends Controller
         if ($errors) {
             $response['errors'] = $errors;
         }
+
         return response()->json($response, $status);
     }
 }

@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Cliente;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ClienteRepository
 {
@@ -36,6 +35,7 @@ class ClienteRepository
     public function update(Cliente $cliente, array $data): Cliente
     {
         $cliente->update($data);
+
         return $cliente->refresh();
     }
 

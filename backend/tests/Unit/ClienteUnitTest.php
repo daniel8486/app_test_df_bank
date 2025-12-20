@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use App\Rules\ValidCpf;
+use PHPUnit\Framework\TestCase;
 
 class ClienteUnitTest extends TestCase
 {
@@ -12,13 +12,13 @@ class ClienteUnitTest extends TestCase
      */
     public function test_cpf_valido()
     {
-        $rule = new ValidCpf();
+        $rule = new ValidCpf;
         $this->assertTrue($rule->passes('cpf', '52998224725'));
     }
 
     public function test_cpf_invalido()
     {
-        $rule = new ValidCpf();
+        $rule = new ValidCpf;
         $this->assertFalse($rule->passes('cpf', '12345678900'));
     }
 }

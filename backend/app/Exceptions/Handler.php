@@ -17,6 +17,7 @@ class Handler extends ExceptionHandler
                 'errors' => $e->errors(),
             ], $e->status);
         }
+
         return parent::render($request, $e);
     }
 }

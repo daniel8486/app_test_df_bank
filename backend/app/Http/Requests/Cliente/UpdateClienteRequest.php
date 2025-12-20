@@ -22,11 +22,12 @@ class UpdateClienteRequest extends FormRequest
     public function rules(): array
     {
         $id = $this->route('id');
+
         return [
             'nome' => ['required', 'string'],
             // Permite CPF e email iguais ao próprio cliente
-            'cpf' => ['required', 'string', 'unique:clientes,cpf,' . $id . ',id', new \App\Rules\ValidCpf],
-            'email' => ['required', 'string', 'email', 'unique:clientes,email,' . $id . ',id'],
+            'cpf' => ['required', 'string', 'unique:clientes,cpf,'.$id.',id', new \App\Rules\ValidCpf],
+            'email' => ['required', 'string', 'email', 'unique:clientes,email,'.$id.',id'],
             'idade' => ['required', 'integer', 'min:18'],
             'endereco' => ['required', 'string'],
         ];

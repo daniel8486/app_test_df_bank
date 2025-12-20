@@ -41,6 +41,7 @@ class ClienteFactory extends Factory
             $d = ((10 * $d) % 11) % 10;
             $n[$t] = $d;
         }
+
         return implode('', $n);
     }
 }

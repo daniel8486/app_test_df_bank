@@ -3,12 +3,11 @@
 namespace App\Services;
 
 use App\DTOs\ClienteDTO;
+use App\Exceptions\DomainException;
 use App\Models\Cliente;
 use App\Repositories\ClienteRepository;
 use App\Rules\ValidCpf;
-use App\Exceptions\DomainException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ClienteService
 {
@@ -19,6 +18,7 @@ class ClienteService
     public function create(ClienteDTO $dto): Cliente
     {
         $this->validateBusiness($dto);
+
         return DB::transaction(function () use ($dto) {
             return $this->repository->create($this->dtoToArray($dto));
         });
@@ -28,6 +28,7 @@ class ClienteService
     {
         $cliente = $this->repository->findById($id);
         $this->validateBusiness($dto, $id);
+
         return DB::transaction(function () use ($cliente, $dto) {
             return $this->repository->update($cliente, $this->dtoToArray($dto));
         });
@@ -51,7 +52,7 @@ class ClienteService
 
     private function validateBusiness(ClienteDTO $dto, ?string $ignoreId = null): void
     {
-        if (!(new ValidCpf())->passes('cpf', $dto->cpf)) {
+        if (! (new ValidCpf)->passes('cpf', $dto->cpf)) {
             throw new DomainException('CPF inválido.');
         }
         $cpfExists = $this->repository->findByCpf($dto->cpf);
