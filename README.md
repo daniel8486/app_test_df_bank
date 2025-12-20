@@ -1,4 +1,4 @@
-# Guia Rápido - Projeto app_test_df_bank
+# Guia Rápido - Projeto CRUD app_test_df_bank
 
 ## Requisitos
 - Docker e Docker Compose (para banco de dados)
@@ -150,8 +150,5 @@ O frontend consome a API do backend, exibe dados em tabelas, permite buscas, cad
 O frontend e backend comunicam-se via HTTP (JSON). O banco de dados é isolado em container Docker, facilitando o setup local e testes.
 
 ---
-
-
-
 
 Pronto! Qualquer dúvida, consulte a documentação ou abra uma issue.
