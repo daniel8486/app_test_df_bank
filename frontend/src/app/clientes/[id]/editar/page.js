@@ -30,13 +30,20 @@ export default function EditarClientePage() {
     setLoading(true);
     setError(null);
     setErrorLog(null);
+    const uuidRegex = /^[0-9a-fA-F-]{36}$/;
+    if (!id || !uuidRegex.test(id)) {
+      setError('ID do cliente inválido.');
+      setLoading(false);
+      return;
+    }
     try {
       // Filtra apenas os campos editáveis
       const { nome, cpf, email, idade, endereco } = formData;
       const payload = { nome, cpf, email, idade, endereco };
       console.log('Payload edição:', payload);
       await api.put(`/clientes/${id}`, payload);
-      router.push('/clientes');
+      // Passa mensagem de sucesso via query param
+      router.push('/clientes?success=Cliente%20editado%20com%20sucesso!');
     } catch (e) {
       console.log('Erro detalhado edição:', e.response?.data);
       const msg = e.response?.data?.message || 'Erro ao editar cliente';

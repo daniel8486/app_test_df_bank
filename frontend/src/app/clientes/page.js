@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Layout from '../../components/Layout';
 import ClienteTable from '../../components/ClienteTable';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -11,9 +12,30 @@ import { useEffect } from 'react';
 
 export default function ClientesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { clientes, loading, error, pagination, fetchClientes } = useClientes();
   const [deleteId, setDeleteId] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [success, setSuccess] = useState(null);
+  // Lê mensagem de sucesso da query string
+  React.useEffect(() => {
+    const msg = searchParams.get('success');
+    if (msg) {
+      setSuccess(msg);
+      // Remove a mensagem da URL após exibir
+      const url = new URL(window.location.href);
+      url.searchParams.delete('success');
+      window.history.replaceState({}, document.title, url.pathname + url.search);
+    }
+  }, [searchParams]);
+
+  // Timeout para sumir a mensagem após 3 segundos sempre que success mudar
+  React.useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   useEffect(() => {
     fetchClientes();
@@ -77,6 +99,17 @@ export default function ClientesPage() {
 
   return (
     <Layout>
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded p-3 mb-4 flex flex-col gap-2 animate-fade-in">
+          <div className="flex items-center gap-2 mb-1">
+            <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-semibold text-green-700">{success}</span>
+          </div>
+          <div className="pl-7 text-green-700 whitespace-pre-line">Você pode visualizar, editar ou excluir o cliente na lista.</div>
+        </div>
+      )}
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Clientes</h1>
