@@ -5,6 +5,9 @@ import api from '../../../services/api';
 import { useRouter, useParams } from 'next/navigation';
 import { cpfMask } from '../../../utils/cpfMask';
 import ClienteAvatar from '../../../components/ClienteAvatar';
+import dynamic from 'next/dynamic';
+
+const Loading = dynamic(() => import('../../../components/Loading'), { ssr: false });
 
 export default function VisualizarClientePage() {
   const router = useRouter();
@@ -26,7 +29,7 @@ export default function VisualizarClientePage() {
   }, [id]);
 
   if (error) return <Layout><div className="text-red-600 py-8 text-center">{error}</div></Layout>;
-  if (!cliente) return <Layout><div className="py-8 text-center">Carregando...</div></Layout>;
+  if (!cliente) return <Layout><div className="py-8 text-center"><Loading /></div></Layout>;
 
   return (
     <Layout>

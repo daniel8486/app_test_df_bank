@@ -5,6 +5,8 @@ import ClienteForm from '../../../components/ClienteForm';
 import FormSection from '../../../components/FormSection';
 import api from '../../../services/api';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+const Loading = dynamic(() => import('../../../components/Loading'), { ssr: false });
 
 export default function NovoClientePage() {
   const router = useRouter();
@@ -73,7 +75,7 @@ export default function NovoClientePage() {
             </div>
           )}
           <FormSection>
-            <ClienteForm onSubmit={handleSubmit} loading={loading} />
+            {loading ? <Loading /> : <ClienteForm onSubmit={handleSubmit} loading={loading} />}
           </FormSection>
           <div className="flex justify-center mt-6">
             <button

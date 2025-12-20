@@ -4,6 +4,9 @@ import Layout from '../../../../components/Layout';
 import ClienteForm from '../../../../components/ClienteForm';
 import api from '../../../../services/api';
 import { useRouter, useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const Loading = dynamic(() => import('../../../../components/Loading'), { ssr: false });
 
 export default function EditarClientePage() {
   const router = useRouter();
@@ -62,7 +65,7 @@ export default function EditarClientePage() {
     }
   };
 
-  if (!cliente) return <Layout><div className="py-8 text-center">Carregando...</div></Layout>;
+  if (!cliente) return <Layout><div className="py-8 text-center"><Loading /></div></Layout>;
 
   return (
     <Layout>
