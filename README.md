@@ -58,7 +58,6 @@ cd backend/./vendor/bin/pint --test # mostra os erros lints sem corrigir
 ## Endpoints e exemplos
 
 backend/POSTMAN_COLLECTION.json
-
 ---
 
 ## 3. Frontend (Next.js)
@@ -69,11 +68,9 @@ npm install
 npm run dev
 ```
 Acesse http://localhost:3000
-
 ---
 
 ## 4. Testes com PostgreSQL (opcional)
-
 Configure o arquivo `.env.testing` em backend:
 ```
 DB_CONNECTION=pgsql
@@ -88,7 +85,6 @@ Rode:
 php artisan migrate --env=testing
 php artisan test --env=testing
 ```
-
 ---
 
 ## 5. Integração Contínua (CI)
